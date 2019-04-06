@@ -2,7 +2,13 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import Error from './Error';
 import Loading from './Loading';
+import styled from 'styled-components';
 
+const ShadedBackground = styled.div`
+  background-color: rgba(201, 211, 184, .75);
+  display: inline-block;
+  padding: .15rem .5rem;
+`;
 
 interface State {
   error: boolean,
@@ -14,7 +20,7 @@ interface State {
   danger: string,
 }
 
-export class Forecast extends Component<any, State> {
+export class Conditions extends Component<any, State> {
   constructor(props: State) {
     super(props);
 
@@ -27,7 +33,6 @@ export class Forecast extends Component<any, State> {
       time: '',
       danger: 'Invalid',
     }
-
   }
 
   componentDidMount() {
@@ -66,16 +71,41 @@ export class Forecast extends Component<any, State> {
 
     return (
       <div>
-        <h3>Danger: { danger }</h3>
 
-        <p className={'mt-4'}>Temp: { temp } &deg;F</p>
-        <p>Wind: { wind } MPH</p>
-        <p>RH: { rh }%</p>
+        <ShadedBackground>
+          <h3 className={'my-1'}>Danger: { danger }</h3>
+        </ShadedBackground>
 
-        <h6 className={'mt-4'}>Last updated:<br></br>{ time }</h6>
+        <div className={ 'mt-4' }>
+          <div className={ 'my-2' }>
+            <ShadedBackground>
+              <span>Temp: { temp }&deg;F</span>
+            </ShadedBackground>
+          </div>
+
+          <div className={ 'my-3' }>
+            <ShadedBackground>
+              <span>Wind: { wind } MPH</span>
+            </ShadedBackground>
+          </div>
+
+          <div className={ 'my-3' }>
+            <ShadedBackground>
+              <span className={ 'd-inline-block' }>RH: { rh }%</span>
+            </ShadedBackground>
+          </div>
+
+        </div>
+
+        <div className={ 'mt-4' }>
+          <ShadedBackground>
+
+          <h6 className={'my-1'}>Last updated: { time }</h6>
+          </ShadedBackground>
+        </div>
       </div>
     );
   }
 }
 
-export default Forecast;
+export default Conditions;

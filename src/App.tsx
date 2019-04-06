@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Forecast from './components/Forecast';
+import Conditions from './components/Conditions';
 
 class App extends Component {
   render() {
@@ -18,7 +18,7 @@ class App extends Component {
           } }>
           <h1 className={'text-center mt-5'}>FireWeather</h1>
           <div className={'mt-4 mx-5'}>
-            <Forecast/>
+            <Conditions/>
           </div>
         </div>
       </div>
