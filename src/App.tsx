@@ -11,7 +11,7 @@ class App extends Component {
         <div
           className="App"
           style={ {
-            'background': 'url(img/firewatch-tower.jpg) no-repeat center center fixed',
+            'background': 'url(img/firewatch-tower.webp) no-repeat center center fixed',
             'backgroundSize': 'cover',
             'height': '100%',
             'overflow': 'hidden',
