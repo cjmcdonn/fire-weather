@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Forecast from './components/Forecast';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div
+        style={ {
+          'height': '100vh',
+        } }>
+        <div
+          className="App"
+          style={ {
+            'background': 'url(img/firewatch-tower.jpg) no-repeat center center fixed',
+            'backgroundSize': 'cover',
+            'height': '100%',
+            'overflow': 'hidden',
+          } }>
+          <h1 className={'text-center mt-5'}>FireWeather</h1>
+          <div className={'mt-4 mx-5'}>
+            <Forecast/>
+          </div>
+        </div>
       </div>
     );
   }
