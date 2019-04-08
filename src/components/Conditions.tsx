@@ -21,6 +21,8 @@ interface State {
 }
 
 export class Conditions extends Component<any, State> {
+  pollingInterval = 0;
+
   constructor(props: State) {
     super(props);
 
@@ -32,10 +34,22 @@ export class Conditions extends Component<any, State> {
       rh: -999,
       time: '',
       danger: 'Invalid',
-    }
+    };
+
+    this.poll = this.poll.bind(this);
   }
 
   componentDidMount() {
+    this.poll();
+    this.pollingInterval = setInterval(this.poll, 60000)
+  }
+
+  componentWillUnmount(): void {
+    clearInterval(this.pollingInterval);
+    this.pollingInterval = 0;
+  }
+
+  poll() {
     fetch(`https://api.redsage.io/weather`)
       .then(res => {
         if (res.status !== 200) {
