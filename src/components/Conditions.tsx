@@ -51,20 +51,16 @@ export class Conditions extends Component<any, State> {
             curr_sta: '',
             curr_sign: '',
         };
-
-        this.pollNWS = this.pollNWS.bind(this);
     }
 
     componentDidMount() {
-        this.pollNWS();
-        this.pollingInterval = setInterval(this.pollNWS, 60000);
+        this.setLocation();
+        this.pollDarkSky();
 
-        navigator.geolocation.getCurrentPosition(location => {
-            this.setState({
-                curr_lat: (Math.round(location.coords.latitude * 10000)) / 10000,
-                curr_lon: (Math.round(location.coords.longitude * 10000)) / 10000,
-            })
-        });
+        this.pollingInterval = setInterval(() => {
+            this.setLocation();
+            this.pollDarkSky();
+        }, 300000);
     }
 
     componentWillUnmount(): void {
@@ -72,65 +68,39 @@ export class Conditions extends Component<any, State> {
         this.pollingInterval = 0;
     }
 
-    pollNWS() {
-        fetch(`https://api.weather.gov/points/${this.state.curr_lat},${this.state.curr_lon}`)
+    pollDarkSky() {
+        const url = `https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/bd610bdcefedaf54a0a095c8eba04bf5/${this.state.curr_lat},${this.state.curr_lon}`;
+        fetch (url)
             .then(resp => resp.json()) // transform the data into json
             .then(data => {
-                this.setState({
-                    curr_base: data.properties,
-                });
-                return data.properties.observationStations;
-            })
-            .then(url => {
-                return fetch(url)
-            })
-            .then(resp => resp.json()) // transform the data into json
-            .then(data => {
-                const curr_sta = `${data.observationStations[0]}/observations/current`;
-                const currSignPcs = data.observationStations[0].split('/');
+                console.log(data.currently, moment(data.currently.time * 1000).calendar());
+                const danger = this.calcDanger(
+                    data.currently.temperature,
+                    data.currently.windSpeed,
+                    data.currently.windGust,
+                    data.currently.dewPoint
+                );
 
                 this.setState({
-                    curr_sta: curr_sta,
-                    curr_sign: currSignPcs[currSignPcs.length - 1],
-                });
-
-                return curr_sta;
-            })
-            .then(url => {
-                return fetch(url)
-            })
-            .then(resp => resp.json()) // transform the data into json
-            .then(data => {
-                const temp = this.convertCtoF(data.properties.temperature.value);
-                const wind = this.convertMsToMph(data.properties.windSpeed.value);
-                const rh = Math.round(data.properties.relativeHumidity.value);
-                const gust = 0;
-                const danger = this.calcDanger(temp, wind, gust, rh);
-
-                this.setState({
-                    temp: temp,
-                    wind: wind,
-                    gust: gust,
-                    rh: rh,
-                    time: moment(data.properties.timestamp).calendar(),
+                    temp: Math.round(data.currently.temperature),
+                    wind: Math.round(data.currently.windSpeed),
+                    gust: Math.round(data.currently.windGust),
+                    rh: Math.round(data.currently.dewPoint),
+                    time: moment(data.currently.time * 1000).calendar(),
                     danger: danger,
                     loading: false,
                 });
+
             })
-            .catch(() => {
-                this.setState({
-                    error: true,
-                    loading: false,
-                });
-            });
     }
 
-    convertCtoF(celcius: number) {
-        return Math.round(celcius * (9 / 5) + 32);
-    }
-
-    convertMsToMph(meter: number) {
-        return Math.round(meter * 2.23694);
+    setLocation() {
+        navigator.geolocation.getCurrentPosition(location => {
+            this.setState({
+                curr_lat: (Math.round(location.coords.latitude * 10000)) / 10000,
+                curr_lon: (Math.round(location.coords.longitude * 10000)) / 10000,
+            })
+        });
     }
 
     calcDanger(temp: number, wind: number, gust: number, rh: number) {
@@ -189,7 +159,7 @@ export class Conditions extends Component<any, State> {
     }
 
     render(): React.ReactNode {
-        const {error, loading, temp, wind, rh, time, danger} = this.state;
+        const {error, loading, temp, wind, gust, rh, time, danger, curr_lat, curr_lon} = this.state;
 
         if (error) {
             return <Error/>
@@ -221,6 +191,12 @@ export class Conditions extends Component<any, State> {
 
                     <div className={'my-3'}>
                         <ShadedBackground>
+                            <span>Gust: {gust} MPH</span>
+                        </ShadedBackground>
+                    </div>
+
+                    <div className={'my-3'}>
+                        <ShadedBackground>
                             <span className={'d-inline-block'}>RH: {rh}%</span>
                         </ShadedBackground>
                     </div>
@@ -229,14 +205,12 @@ export class Conditions extends Component<any, State> {
 
                 <div className={'mt-4'}>
                     <ShadedBackground className={'w-100'}>
-                        <div className={' d-flex justify-content-between align-items-baseline'}>
                             <h6 className={'my-1'}>
                                 Updated: {time}
                             </h6>
-                            <h6 className={'small form-text text-muted'}>
-                                <a href={ this.state.curr_sta } target={'_blank'}>{this.state.curr_sign}</a>
+                            <h6 className={'small form-text text-muted text-right'}>
+                                {curr_lat},{curr_lon}
                             </h6>
-                        </div>
                     </ShadedBackground>
                 </div>
 
